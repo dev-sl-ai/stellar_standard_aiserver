@@ -33,22 +33,24 @@ class BaseContactTool(BaseTool):
     async def send_chat_action_msg(self, message: str, action: ActionType, param: object = None):
         self.session_manager.update_chat_history("", message)
         await self.ws_manager.send_to_client(
-            self.message_manager.chat_action_message(message, action, param)
+            self.message_manager.chat_action_message(message, action, param),
+            self.ws_manager.room_id
         )
 
     async def send_action_msg(self, action: ActionType):
-        await self.ws_manager.send_to_client(self.message_manager.action_message(action))
+        await self.ws_manager.send_to_client(self.message_manager.action_message(action), self.ws_manager.room_id)
 
     async def send_action_msg_with_param(self, action: ActionType, param: object = None):
-        await self.ws_manager.send_to_client(self.message_manager.action_message(action, param))
+        await self.ws_manager.send_to_client(self.message_manager.action_message(action, param), self.ws_manager.room_id)
 
     async def send_chat_msg(self, message: str):
         self.session_manager.update_chat_history("", message)
-        await self.ws_manager.send_to_client(self.message_manager.chat_message(message))
+        await self.ws_manager.send_to_client(self.message_manager.chat_message(message), self.ws_manager.room_id)
 
     async def send_confirm_action_msg(self, message: str, action: ActionType, param: object = None):
         await self.ws_manager.send_to_client(
-            self.message_manager.confirm_action_message(message, action, param)
+            self.message_manager.confirm_action_message(message, action, param),
+            self.ws_manager.room_id
         )
 
     async def is_confirmed_yesno(self, response: str) -> bool:

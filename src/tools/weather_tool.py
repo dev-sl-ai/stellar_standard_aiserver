@@ -172,7 +172,7 @@ class ShowWeatherTool(BaseTool):
             website_url,
             ActionType.SHOW_WEATHER.value
         )
-        await self.ws_manager.send_to_client(action_message)
+        await self.ws_manager.send_to_client(action_message, self.ws_manager.room_id)
 
         return response_message
 

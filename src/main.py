@@ -1,17 +1,11 @@
-from src.agent.agent_manager import AgentManager
-from src.agent.prompt_manager import PromptManager
-from src.agent.session_manager import ChatSessionManager
-from src.api.websocket_manager import WebSocketManager
-from src.message_templates.websocket_message_template import WebsocketMessageTemplate
+"""
+Main module - Deprecated
 
-# Initialize managers
-session_manager = ChatSessionManager()
-ws_manager = WebSocketManager()
-message_manager = WebsocketMessageTemplate()
-user_profile = message_manager.contact_param()
-location_data = message_manager.location_param()
+This module previously contained global singleton managers.
+All managers are now room-specific and managed by RoomManager in src/room_manager.py.
 
-prompt_manager = PromptManager()
-agent_executor = AgentManager(
-    ws_manager, message_manager, session_manager, user_profile, prompt_manager
-)
+This file is kept for backwards compatibility but may be removed in the future.
+"""
+
+# Global managers have been moved to room-specific instances.
+# See src/room_manager.py for the new architecture.

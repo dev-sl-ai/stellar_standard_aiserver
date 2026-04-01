@@ -15,7 +15,7 @@ class Logger:
 
         # Set log directory
         desktop_path = Path.home() / "Desktop"
-        log_dir = desktop_path / "AIアバターSTELLA" / "logs" / "dev"
+        log_dir = desktop_path / "AIアバターSTELLAデモ版" / "logs" / "dev"
         os.makedirs(log_dir, exist_ok=True)
 
         # Developer file log: daily, named with date

@@ -29,10 +29,10 @@ class ContactPersonTool(BaseTool):
     return_direct: bool = False
 
     async def contact_person(self):
-        action_message = self.message_manager.url_action_message("http://localhost:8080/contactlist",
+        action_message = self.message_manager.url_action_message("http://153.127.12.146:8080/contactlist",
             ActionType.SHOW_PHONE_PAGE.value
         )
-        await self.ws_manager.send_to_client(action_message)
+        await self.ws_manager.send_to_client(action_message, self.ws_manager.room_id)
         return "担当者にお繋ぎしますので、担当者をお選びください。" 
 
     def _run(

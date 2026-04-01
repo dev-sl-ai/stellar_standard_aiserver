@@ -9,13 +9,15 @@ websocket_connection = None
 async def websocket_client():
     """Function to receive messages from the server."""
     global websocket_connection
-    uri = "ws://localhost:8080/ws"  # Your WebSocket server URL
+    uri = "ws://localhost:8080/ws/user001"  # Your WebSocket server URL
 
     try:
         async with websockets.connect(uri) as websocket:
             websocket_connection = websocket  # Store connection
             print("✅ Connected to WebSocket server.")
 
+            await send_action("set_location", params={"city": "Tokyo", "region": "Tokyo", "lat":35.6762, "lon":139.6503,
+                             "prefecture":'東京都'})
             await send_chat_action("button_1","start_session")
             # Start message listener in background
             asyncio.create_task(listen_to_server(websocket))

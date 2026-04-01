@@ -11,15 +11,22 @@ from src.helpers.conf_loader import PHONECALL_URL
 from src.helpers.logger import logger
 from src.helpers.enums import ActionType
 from src.helpers import system_flags
-from src.main import ws_manager, message_manager
 
 edge_driver_path = "msedgedriver.exe"
 
-async def handle_phonecall_action():
-    loop = asyncio.get_running_loop()
-    await asyncio.to_thread(open_selenium_browser, loop)
+async def handle_phonecall_action(ws_manager=None, message_manager=None, room_id=None):
+    """
+    Handle phone call action with room-specific managers.
 
-def open_selenium_browser(loop):
+    Args:
+        ws_manager: WebSocketManager instance for the room
+        message_manager: MessageManager instance for the room
+        room_id: Room ID for the websocket connection
+    """
+    loop = asyncio.get_running_loop()
+    await asyncio.to_thread(open_selenium_browser, loop, ws_manager, message_manager, room_id)
+
+def open_selenium_browser(loop, ws_manager, message_manager, room_id):
     logger.info("Handling phone call action...")
     logger.info(f"Opened phone call URL: {PHONECALL_URL}")
     options = Options()
@@ -71,10 +78,11 @@ def open_selenium_browser(loop):
                 button_class = call_button.get_attribute("class")
                 if "bg-green-500" in button_class:
                     system_flags.set_phone_call_active(False)
-                    asyncio.run_coroutine_threadsafe(
-                        ws_manager.send_to_client(message_manager.action_message(ActionType.PHONEEND_ACTION.value)),
-                        loop
-                    )
+                    if ws_manager and message_manager and room_id:
+                        asyncio.run_coroutine_threadsafe(
+                            ws_manager.send_to_client(message_manager.action_message(ActionType.PHONEEND_ACTION.value), room_id),
+                            loop
+                        )
 
                     logger.info("Call ended (button is green). Exiting browser...")
                     break
