@@ -40,38 +40,29 @@ class ToolLoader:
                 session_manager=self.session_manager,
             ),
             "faq_tool": lambda: InformationTool(
-                retriever=self.retrievers["company_faq"],
+                retriever=self.retrievers["iwasaki_exhibition_faq"],
                 ws_manager=self.ws_manager,
                 message_manager=self.message_manager,
                 session_manager=self.session_manager,
                 user_profile=self.user_profile,
                 name="faq_tool",
-                description="会社やステラリンクに関するFAQ情報を取得するツール。",
-            ),
-            "support_tool": lambda: InformationTool(
-                retriever=self.retrievers["customer_service"],
-                ws_manager=self.ws_manager,
-                message_manager=self.message_manager,
-                session_manager=self.session_manager,
-                user_profile=self.user_profile,
-                name="support_tool",
-                description="訪問者対応や顧客サポートに関する質問に答えるツール。",
+                description="展示会に関するFAQ情報を取得するツール。",
             ),
             "show_map": lambda: ShowMapTool(
                 ws_manager=self.ws_manager,
                 message_manager=self.message_manager,
                 session_manager=self.session_manager,
-                trigger_keywords=["地図", "マップ", "アクセス", "行き方", "map", "案内図", "場所"]
+                trigger_keywords=["地図", "マップ", "アクセス", "行き方", "map", "案内図", "会場"]
             ),
         }
 
         # Map button ID to list of tools and their default
         self.button_tool_map: Dict[str, List[str]] = {
-            "button_1": ["weather_info", "websearch", "support_tool", "contact_person", "faq_tool", "show_map"],
+            "button_1": ["weather_info", "websearch", "contact_person", "faq_tool", "show_map"],
         }
 
         self.default_tool_map: Dict[str, str] = {
-            "button_1": "support_tool",
+            "button_1": "faq_tool",
         }
 
     def get_tools_by_keys(self, tool_keys: List[str]) -> List[Any]:

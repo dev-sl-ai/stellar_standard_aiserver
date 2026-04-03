@@ -1,7 +1,6 @@
 tools: 
   weather_info : True
-  contact_person : True
-  support_tool : True
+  contact_person : False
   faq_tool : True
   websearch : False
   show_map : True
@@ -17,28 +16,25 @@ model:
 
 rag:
   datasets:
-    - name: company_faq
-      source_data: "data/stellarlink_faq_ja.xlsx"
-      vector_db: "data/company_faq_index"
-      track_file: "data/timestamp_company.txt"
-    - name: customer_service
-      source_data: "data/visitor_reception_faq_ja.xlsx"
-      vector_db: "data/customer_service_index"
-      track_file: "data/timestamp_support.txt"
+    - name: "iwasaki_exhibition_faq"
+      source_data: "data/iwasaki_exhibition_faq.xlsx"
+      vector_db: "data/iwasaki_exhibition_faq_index"
+      track_file: "data/timestamp_iwasaki_exhibition.txt"
 
 dailogue:
-  
+  rag_fallback_message: "ご質問いただきありがとうございます。大変申し訳ございませんが、勉強不足のためお答えいたしかねます。力不足で恐縮ですが、どうかご理解いただけますと幸いです。"
+
 greeting:
   greet_ja-JP : "こんにちは。ステラです。ご案内致しますので、何かお手伝いできることありますか？\n"
   greet_en-US : "Hello, I am Stella. How can I assist you today?\n"
   greet_zh-CN : "您好，我是Stella。我能为您做些什么？\n"
   greet_ko-KR : "안녕하세요. 스텔라입니다. 안내해 드리겠습니다. 무엇을 도와드릴까요?\n"
   greet_es-ES : "Hola, soy Stella. ¿En qué puedo ayudarte hoy?\n"
-  end_ja-JP : "ステラリンクへお越しいただきありがとうございました。お気をつけてお帰りください。\n"
-  end_en-US : "Thank you for visiting StellarLink. I hope you have a great day.\n"
-  end_zh-CN : "感谢您访问StellarLink。希望您今天过得愉快。\n"
-  end_ko-KR : "StellarLink를 방문해 주셔서 감사합니다. 좋은 하루 되시길 바랍니다.\n"
-  end_es-ES : "Gracias por visitar StellarLink. Espero que tengas un buen día.\n"
+  end_ja-JP : "ご来場ありがとうございました。引き続き展示会をお楽しみください。\n"
+  end_en-US : "Thank you for visiting. Please enjoy the rest of the exhibition!\n"
+  end_zh-CN : "感谢您的到访。请继续享受接下来的展览！\n"
+  end_ko-KR : "방문해 주셔서 감사합니다. 전시회를 계속 즐겨주세요!\n"
+  end_es-ES : "¡Gracias por visitarnos! ¡Disfruta el resto de la exposición!\n"
 
 display_text:
   ask_phone_text: "ご連絡先を\nお伺いいたします。"

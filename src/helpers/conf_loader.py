@@ -46,6 +46,16 @@ class ConfigLoader:
 
             logger.info(f"言語が変更されました: {new_language}")
 
+    def reset_current_language(self):
+        with self._lock:
+            self.config["language"] = "ja-JP"
+            self.save_config(self.config)  # Save updated config
+
+            # Update the current language in server state
+            self.current_language = "ja-JP"
+
+            logger.info(f"言語が日本語にリセットされました: {self.current_language}")
+
     def save_config(self, config_data):
         """Save the given configuration to the YAML file."""
         try:

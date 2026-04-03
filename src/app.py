@@ -82,15 +82,6 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
 
     await room.ws_manager.connect(websocket, room_id)
 
-    # Send initial language setting
-    await room.ws_manager.send_to_client(
-        room.message_manager.action_message(
-            ActionType.SET_LANGUAGE.value,
-            LanguageData(language=server_config_loader.get_language()),
-        ),
-        room_id,
-    )
-
     try:
         while True:
             try:
@@ -315,7 +306,7 @@ async def end_session(room):
     )
     room.ws_manager.clear_button_id()
     room.ws_manager.waiting_for_response = False
-
+    server_config_loader.reset_current_language()  # Reset language to default on session end
 
 def _get_language_instruction(current_language: str) -> str:
     """Add strong language instruction for LLM."""
