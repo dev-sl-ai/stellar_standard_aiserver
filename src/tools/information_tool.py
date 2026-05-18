@@ -64,11 +64,9 @@ class InformationTool(BaseTool):
         question: str,
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
-        """Synchronously retrieve and return relevant information."""
         if not self.retriever:
             return "RAG Retrieverが設定されていません。"
 
-        # Translate question to Japanese before retrieval
         japanese_question = self._translate_to_japanese(question)
 
         try:
@@ -80,9 +78,7 @@ class InformationTool(BaseTool):
         if not results:
             return DAILOGUE.get("rag_fallback_message", "関連する情報が見つかりませんでした。")
 
-        # Combine multiple retrieved answers
-        combined_answer = self._format_results(results)
-        return combined_answer
+        return self._format_results(results, keyword=question)
 
     # ----------- Async version -----------
     async def _arun(
@@ -90,13 +86,11 @@ class InformationTool(BaseTool):
         question: str,
         run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
     ) -> str:
-        """Asynchronous retrieval version."""
         if not self.retriever:
             return "RAG Retrieverが設定されていません。"
 
         self.session_manager.context.last_tool_name = self.name
 
-        # Translate question to Japanese before retrieval
         japanese_question = self._translate_to_japanese(question)
 
         try:
@@ -108,21 +102,35 @@ class InformationTool(BaseTool):
         if not results:
             return DAILOGUE.get("rag_fallback_message", "関連する情報が見つかりませんでした。")
 
-        combined_answer = self._format_results(results)
-        return combined_answer
+        return self._format_results(results, keyword=question)
 
     # ----------- Helper -----------
-    def _format_results(self, results: list) -> str:
-        """Combine retrieved documents into a readable text."""
-        contents = []
-        for doc in results:
-            text = doc.page_content.strip()
-            # Extract only the "Answer:" part if it exists
-            if "Answer:" in text:
-                text = text.split("Answer:", 1)[1].strip()
-            contents.append(text)
+    def _format_results(self, results: list, keyword: str = "") -> str:
+        """Format retrieved exhibits into the standard response template."""
+        seen_nos = set()
+        entries = []
 
-        # Remove duplicates & join neatly
-        unique_answers = list(dict.fromkeys(contents))
-        formatted = "\n\n".join(unique_answers)
-        return formatted or DAILOGUE.get("rag_fallback_message", "関連する情報が見つかりませんでした。")
+        for doc in results:
+            m = doc.metadata
+            no = m.get("no", "")
+            if no in seen_nos:
+                continue
+            seen_nos.add(no)
+
+            company = m.get("company", "")
+            title = m.get("title", "")
+            summary = m.get("summary", "")
+            appeal = m.get("appeal", "")
+            detail = f"{summary}{appeal}".strip()
+
+            prefix = "次に、" if entries else ""
+            entries.append(
+                f"{prefix}展示No.{no}・{company}社「{title}」：{detail}を展示しております。"
+            )
+
+        if not entries:
+            return DAILOGUE.get("rag_fallback_message", "関連する情報が見つかりませんでした。")
+
+        keyword_part = f"「{keyword}」についてですが、" if keyword else ""
+        body = " ".join(entries)
+        return f"{keyword_part}{body} 詳細は、各展示場所にてご確認ください。"

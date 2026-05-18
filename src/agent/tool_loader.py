@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List
 
 from src.tools.information_tool import InformationTool
 from src.tools.contact_person_tool import ContactPersonTool
@@ -40,7 +40,7 @@ class ToolLoader:
                 session_manager=self.session_manager,
             ),
             "faq_tool": lambda: InformationTool(
-                retriever=self.retrievers["iwasaki_exhibition_faq"],
+                retriever=self.retrievers["kaga_fei_exhibition_faq"],
                 ws_manager=self.ws_manager,
                 message_manager=self.message_manager,
                 session_manager=self.session_manager,
@@ -58,7 +58,7 @@ class ToolLoader:
 
         # Map button ID to list of tools and their default
         self.button_tool_map: Dict[str, List[str]] = {
-            "button_1": ["weather_info", "websearch", "contact_person", "faq_tool", "show_map"],
+            "button_1": ["faq_tool"],
         }
 
         self.default_tool_map: Dict[str, str] = {

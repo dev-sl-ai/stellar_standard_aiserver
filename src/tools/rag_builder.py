@@ -20,13 +20,33 @@ class RAGBuilder:
 
     def _load_documents(self) -> List[Document]:
         df = pd.read_excel(self.source_data)
-        docs = [
-            Document(
-                page_content=f"Question: {row['Question']}\nAnswer: {row['Answer']}",
-                metadata={"Category": row.get("Category", ""), "Source": self.name},
-            )
-            for _, row in df.iterrows()
-        ]
+        docs = []
+        for _, row in df.iterrows():
+            def cell(col):
+                v = row.get(col)
+                return str(v).replace('\n', ' ').strip() if pd.notna(v) else ''
+
+            no_raw = row.get('№')
+            no = str(int(float(no_raw))) if pd.notna(no_raw) else ''
+            theme = cell('テーマ')
+            company = cell('社名')
+            title = cell('タイトル')
+            summary = cell('概要')
+            appeal = cell('アピールポイント')
+
+            page_content = f"{theme} {company} {title} {summary} {appeal}"
+            docs.append(Document(
+                page_content=page_content,
+                metadata={
+                    "no": no,
+                    "theme": theme,
+                    "company": company,
+                    "title": title,
+                    "summary": summary,
+                    "appeal": appeal,
+                    "Source": self.name,
+                },
+            ))
         return docs
 
     def _split_documents(self, docs: List[Document]) -> List[Document]:

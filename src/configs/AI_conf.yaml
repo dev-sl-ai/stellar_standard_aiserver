@@ -1,9 +1,9 @@
-tools: 
-  weather_info : True
+tools:
+  weather_info : False
   contact_person : False
   faq_tool : True
   websearch : False
-  show_map : True
+  show_map : False
 
 model:
   llm: 
@@ -16,10 +16,10 @@ model:
 
 rag:
   datasets:
-    - name: "iwasaki_exhibition_faq"
-      source_data: "data/iwasaki_exhibition_faq.xlsx"
-      vector_db: "data/iwasaki_exhibition_faq_index"
-      track_file: "data/timestamp_iwasaki_exhibition.txt"
+    - name: "kaga_fei_exhibition_faq"
+      source_data: "data/kaga_fei_exhibition_faq.xlsx"
+      vector_db: "data/kaga_fei_exhibition_faq_index"
+      track_file: "data/timestamp_kaga_fei_exhibition.txt"
 
 dailogue:
   rag_fallback_message: "ご質問いただきありがとうございます。大変申し訳ございませんが、勉強不足のためお答えいたしかねます。力不足で恐縮ですが、どうかご理解いただけますと幸いです。"
