@@ -83,12 +83,8 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                 if message == "exit":
                     break
 
-                data = room.message_manager.parse_message(json.loads(message))
-                is_action = data.type == MessageType.ACTION.value
-                is_touch = data.action_type == ActionType.TOUCH_ACTION.value
-                is_end_tts = data.action_type == ActionType.END_OF_TTS.value
-
-                if not (is_action and (is_touch or is_end_tts)):
+                data = room.message_manager.parse_message(json.loads(message))  
+                if not (data.type == MessageType.ACTION.value and data.action_type == ActionType.TOUCH_ACTION.value):
                     logger.info(f"[{room_id}] WebSocket message: {data.__dict__}")
 
                 # Handle waiting-for-response state
@@ -121,6 +117,13 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
             
             except asyncio.TimeoutError:
                 logger.info(f"[{room_id}] Connection idle timeout.")
+                if room.session_manager.context.session_id is None:
+                    await room.ws_manager.send_to_client(
+                            room.message_manager.action_message(ActionType.SHOW_ADS_PAGE.value, LanguageData("ja"),),
+                            room_id,
+                        )
+                else:
+                    await end_session(room)
 
     except WebSocketDisconnect:
         logger.info(f"[{room_id}] Client disconnected.")
