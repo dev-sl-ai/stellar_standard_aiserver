@@ -19,6 +19,7 @@ class ActionType(Enum):
     START_SESSION = "start_session"
     END_SESSION = "end_session"
     SHOW_CONVERSATION = "show_conversation"
+    SHOW_ADS_PAGE = "show_ads_page"
     SHOW_TOP = "show_top"
     TOUCH_ACTION = "touch_action"
     END_OF_TTS = "end_of_TTS"

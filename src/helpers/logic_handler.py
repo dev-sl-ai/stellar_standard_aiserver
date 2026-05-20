@@ -82,6 +82,8 @@ async def start_new_session_and_greet(room):
 
     greet_message = f"{BUTTON_TITLE_MAP[button_id]} についてですね。\nどのような展示品が目的でしょうか？"
     room.session_manager.update_chat_history(greet_message, "")
+
+    room.ws_manager.send_to_client(room.message_manager.action_message(ActionType.SHOW_CONVERSATION.value), room_id)
     await room.ws_manager.send_to_client(room.message_manager.chat_message(greet_message), room_id)
 
 
@@ -90,7 +92,6 @@ async def end_session_from_client(room):
     room.session_manager.end_session()
     room.ws_manager.clear_button_id()
     room.ws_manager.waiting_for_response = False
-
 
 async def end_session(room):
     """End session and notify client."""
@@ -120,7 +121,7 @@ async def receive_with_dynamic_timeout(websocket, room):
     
     while True:
         # Get current timeout based on state
-        if room.session_manager.context.session_id is None:  
+        if room.session_manager.context.session_id is not None and room.session_manager.context.last_tool_name in {"faq_tool"}:  
             max_timeout = SHOW_MAP_TIMEOUT
             elapsed = asyncio.get_event_loop().time() - start_time
         else:
