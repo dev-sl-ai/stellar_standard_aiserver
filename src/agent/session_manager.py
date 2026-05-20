@@ -3,10 +3,8 @@ from datetime import datetime
 from src.helpers import logger
 from src.helpers.session_logger import (
     write_user_session_log,
-    copy_image_to_log_folder
 )
 from src.agent.context_variables import ContextMemory
-from src.capture_image import capture_image
 
 class ChatSessionManager:
     """Manages chat sessions and history with contextual memory."""
@@ -54,7 +52,6 @@ class ChatSessionManager:
         self.context.session_end_time = datetime.now().replace(microsecond=0)
         logger.info(f"ログ保存してセッション終了: {self.active_session}")
  
-        copy_image_to_log_folder(self.context)
         write_user_session_log(self.context)
         self.clear_history()
         self.context.clear()

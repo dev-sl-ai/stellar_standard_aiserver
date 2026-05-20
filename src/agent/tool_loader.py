@@ -1,9 +1,7 @@
 from typing import Any, Callable, Dict, List
 
 from src.tools.information_tool import InformationTool
-from src.tools.contact_person_tool import ContactPersonTool
 from src.tools.weather_tool import ShowWeatherTool
-from src.tools.websearch_tool import WebSearchTool
 from src.tools.showmap_tool import ShowMapTool
 from src.tools.rag_builder import build_all_retrievers
 
@@ -29,16 +27,6 @@ class ToolLoader:
                 message_manager=self.message_manager,
                 session_manager=self.session_manager,
             ), 
-            "contact_person": lambda: ContactPersonTool(
-                ws_manager=self.ws_manager,
-                message_manager=self.message_manager,
-                session_manager=self.session_manager,
-            ),
-            "websearch": lambda: WebSearchTool(
-                ws_manager=self.ws_manager,
-                message_manager=self.message_manager,
-                session_manager=self.session_manager,
-            ),
             "faq_tool": lambda: InformationTool(
                 retriever=self.retrievers["kaga_fei_exhibition_faq"],
                 ws_manager=self.ws_manager,
@@ -59,10 +47,18 @@ class ToolLoader:
         # Map button ID to list of tools and their default
         self.button_tool_map: Dict[str, List[str]] = {
             "button_1": ["faq_tool"],
+            "button_2": ["faq_tool"],
+            "button_3": ["faq_tool"],
+            "button_4": ["faq_tool"],
+            "button_5": ["faq_tool"],
         }
 
         self.default_tool_map: Dict[str, str] = {
             "button_1": "faq_tool",
+            "button_2": "faq_tool",
+            "button_3": "faq_tool",
+            "button_4": "faq_tool",
+            "button_5": "faq_tool",
         }
 
     def get_tools_by_keys(self, tool_keys: List[str]) -> List[Any]:
