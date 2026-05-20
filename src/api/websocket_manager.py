@@ -65,16 +65,16 @@ class WebSocketManager:
     # ====== メッセージ送信 ======
     async def send_to_client(self, message: object, room_id: str):
         """指定したroom_idにメッセージを送信。"""
-        allow_send = (
-            self.button_id is not None
-            or (isinstance(message, ActionMessage) and message.action_type == ActionType.SHOW_ADS_PAGE.value)
-            or (isinstance(message, ChatActionMessage) and message.action.action_type == ActionType.SHOW_ADS_PAGE.value)
-            or (isinstance(message, ActionMessage) and message.action_type == ActionType.SET_LANGUAGE.value)
-        )
+        # allow_send = (
+        #     self.button_id is not None
+        #     or (isinstance(message, ActionMessage) and message.action_type == ActionType.SHOW_ADS_PAGE.value)
+        #     or (isinstance(message, ChatActionMessage) and message.action.action_type == ActionType.SHOW_ADS_PAGE.value)
+        #     or (isinstance(message, ActionMessage) and message.action_type == ActionType.SET_LANGUAGE.value)
+        # )
 
-        if not allow_send:
-            logger.warning(f"[{room_id}] ボタンIDが設定されていません。メッセージ送信をスキップ。")
-            return
+        # if not allow_send:
+        #     logger.warning(f"[{room_id}] ボタンIDが設定されていません。メッセージ送信をスキップ。")
+        #     return
 
         ws = unity_clients.get(room_id)
         if not ws:
