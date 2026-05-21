@@ -4,3 +4,4 @@ phonecall_url: http://127.0.0.1:8080/phone
 port: 8000
 session_timeout: 60
 show_map_timeout: 30
+translation_cache_file: cache/translation_cache.json

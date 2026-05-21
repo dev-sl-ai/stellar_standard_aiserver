@@ -1,7 +1,7 @@
 import json
 from src.helpers.logger import logger
 from src.helpers.enums import MessageType, ActionType
-
+from src.helpers.language_processor import _translate_cached
 
 class ChatMessage:
     def __init__(self, message: str):
@@ -198,10 +198,17 @@ class WebsocketMessageTemplate:
     def __init__(self):
         pass
 
-    def chat_message(self, message: str) -> ChatMessage:
+    def chat_message(self, message: str, current_language: str) -> ChatMessage:
         """Create a chat message."""
-        return ChatMessage(message)
 
+        logger.debug(f"**Creating chat message with language: {current_language}")
+        if current_language == "ja":
+            return ChatMessage(message)
+        if current_language == "zh": 
+            current_language = "zh-CN"
+        translated = _translate_cached(message, current_language)
+        return ChatMessage(translated)
+    
     def action_message(
         self, action_type: str, params: UserProfile = None
     ) -> ActionMessage:

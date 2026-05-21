@@ -61,7 +61,7 @@ async def process_chat(user_input: str, room):
         return
 
     room.session_manager.update_chat_history(user_input, bot_response)
-    await room.ws_manager.send_to_client(room.message_manager.chat_message(bot_response), room_id)
+    await room.ws_manager.send_to_client(room.message_manager.chat_message(bot_response,server_config_loader.get_language()), room_id)
 
 
 async def process_chat_action(message: str, action_type: str, params, room):
@@ -83,8 +83,8 @@ async def start_new_session_and_greet(room):
     greet_message = f"{BUTTON_TITLE_MAP[button_id]} についてですね。\nどのような展示品が目的でしょうか？"
     room.session_manager.update_chat_history(greet_message, "")
 
-    room.ws_manager.send_to_client(room.message_manager.action_message(ActionType.SHOW_CONVERSATION.value), room_id)
-    await room.ws_manager.send_to_client(room.message_manager.chat_message(greet_message), room_id)
+    await room.ws_manager.send_to_client(room.message_manager.action_message(ActionType.SHOW_CONVERSATION.value), room_id)
+    await room.ws_manager.send_to_client(room.message_manager.chat_message(greet_message, server_config_loader.get_language()), room_id)
 
 
 async def end_session_from_client(room):
