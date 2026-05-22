@@ -11,6 +11,7 @@ class ContextMemory:
         self.memory_log: list = []
         self.workflow_active: bool = True
         self.last_tool_name: Optional[str] = None
+        self.is_show_map_page: bool = False
     
     def set_button_id(self, button_id: str):
         self.button_id = button_id
@@ -20,6 +21,12 @@ class ContextMemory:
 
     def get_memory(self) -> list:
         return self.memory_log
+    
+    def set_is_show_map_page(self, value: bool):
+        self.is_show_map_page = value
+    
+    def get_is_show_map_page(self) -> bool:
+        return self.is_show_map_page
 
     def clear(self):
         self.__init__()

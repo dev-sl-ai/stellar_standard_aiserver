@@ -27,13 +27,14 @@ async def process_action(action_type: str, params, room):
 
         case ActionType.END_OF_TTS.value:
             pass
-            # ctx = room.session_manager.get_context_memory()
-            # if ctx and ctx.session_id:
-            #     if ctx.last_tool_name in ("faq_tool"):
-            #         await room.ws_manager.send_to_client(
-            #             room.message_manager.action_message(ActionType.SHOW_MAP.value), room_id
-            #         )
-            #         # to add timer 30 sec
+            ctx = room.session_manager.get_context_memory()
+            if ctx and ctx.session_id:
+                if ctx.last_tool_name in ("faq_tool"):
+                    ctx.set_is_show_map_page(True)
+                    # await room.ws_manager.send_to_client(
+                    #     room.message_manager.action_message(ActionType.SHOW_MAP.value), room_id
+                    # )
+                    # to add timer 30 sec
 
 
 async def process_chat(user_input: str, room):
@@ -121,7 +122,7 @@ async def receive_with_dynamic_timeout(websocket, room):
     
     while True:
         # Get current timeout based on state
-        if room.session_manager.context.session_id is not None and room.session_manager.context.last_tool_name in {"faq_tool"}:  
+        if room.session_manager.context.session_id is not None and room.session_manager.context.get_is_show_map_page():  
             max_timeout = SHOW_MAP_TIMEOUT
             elapsed = asyncio.get_event_loop().time() - start_time
         else:
