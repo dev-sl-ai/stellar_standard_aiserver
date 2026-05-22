@@ -29,13 +29,8 @@ async def process_action(action_type: str, params, room):
             pass
             ctx = room.session_manager.get_context_memory()
             if ctx and ctx.session_id:
-                if ctx.last_tool_name in ("faq_tool"):
+                if ctx.last_tool_name in {"faq_tool"}:
                     ctx.set_is_show_map_page(True)
-                    # await room.ws_manager.send_to_client(
-                    #     room.message_manager.action_message(ActionType.SHOW_MAP.value), room_id
-                    # )
-                    # to add timer 30 sec
-
 
 async def process_chat(user_input: str, room):
     """Process chat input and generate response for the given room."""

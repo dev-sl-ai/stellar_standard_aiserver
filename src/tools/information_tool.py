@@ -94,6 +94,7 @@ class InformationTool(BaseTool):
 
         try:
             results = await self.retriever.ainvoke(japanese_question)
+
         except Exception as e:
             print(f"[RAG Async Error] {e}")
             return DAILOGUE.get("rag_fallback_message", "情報を取得できませんでした。")
@@ -104,6 +105,7 @@ class InformationTool(BaseTool):
         await self.ws_manager.send_to_client(
             self.message_manager.action_message(ActionType.SHOW_MAP.value), self.ws_manager.room_id
         )
+        
         return self._format_results(results, keyword=question)
 
     # ----------- Helper -----------
@@ -112,7 +114,7 @@ class InformationTool(BaseTool):
         seen_nos = set()
         entries = []
 
-        for doc in results:
+        for doc in results[:1]:
             m = doc.metadata
             no = m.get("no", "")
             if no in seen_nos:

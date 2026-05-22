@@ -202,7 +202,7 @@ class WebsocketMessageTemplate:
         """Create a chat message."""
 
         logger.debug(f"**Creating chat message with language: {current_language}")
-        if current_language == "ja":
+        if current_language == "ja-JP":
             return ChatMessage(message)
         if current_language == "zh": 
             current_language = "zh-CN"
