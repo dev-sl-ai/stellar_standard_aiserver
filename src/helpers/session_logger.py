@@ -20,7 +20,7 @@ def write_user_session_log(ctx):
         f.write(f"セッションID  : {ctx.session_id}\n")
         f.write(f"開始時刻  : {ctx.session_start_time}\n")
         f.write(f"終了時刻  : {ctx.session_end_time or '進行中'}\n")
-        f.write(f"選択したボタン    : {BUTTON_TITLE_MAP.get(ctx.button_id,"")}\n")
+        f.write(f"選択したボタン    : {BUTTON_TITLE_MAP.get(ctx.button_id,'')}\n")
         f.write(f"選択したボタン    : 一般会話\n")
         f.write("\n会話ログ :\n")
 

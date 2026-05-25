@@ -15,7 +15,7 @@ Rules:
 - Do NOT wrap the translation in quotes
 
 Exhibition-specific terminology to translate correctly:
-- 「展示No.」= "Exhibit No." (keep the number format)
+- 「展示場所」= "Exhibit Number" (keep the number format)
 - 「展示会」= "exhibition" or "trade show"
 - 「ソリューション」= "solutions"
 - 「来場登録」= "visitor registration"

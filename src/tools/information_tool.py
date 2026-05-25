@@ -127,7 +127,7 @@ class InformationTool(BaseTool):
             summary_short = summary[:50] + "…" if len(summary) > 50 else summary
 
             entries.append(
-                f"展示No.{no}・{company}社「{title}」：{summary_short}"
+                f"展示場所{no}番・{company}社「{title}」：{summary_short}"
             )
 
         if not entries:
