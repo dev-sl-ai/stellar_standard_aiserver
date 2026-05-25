@@ -79,7 +79,10 @@ class RAGBuilder:
             faiss_store = FAISS.from_documents(docs, self.embedding)
             faiss_store.save_local(self.vector_db)
             self._save_timestamp()
-        return faiss_store.as_retriever()
+        return faiss_store.as_retriever(
+            search_type="mmr",
+            search_kwargs={"k": 3, "fetch_k": 10, "lambda_mult": 0.7},
+        )
 
 def build_all_retrievers():
     retrievers = {}

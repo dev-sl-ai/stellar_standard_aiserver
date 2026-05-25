@@ -77,7 +77,7 @@ class InformationTool(BaseTool):
         if not results:
             return DAILOGUE.get("rag_fallback_message", "関連する情報が見つかりませんでした。")
 
-        return self._format_results(results, keyword=question)
+        return self._format_results(results)
 
     # ----------- Async version -----------
     async def _arun(
@@ -106,15 +106,15 @@ class InformationTool(BaseTool):
             self.message_manager.action_message(ActionType.SHOW_MAP.value), self.ws_manager.room_id
         )
         
-        return self._format_results(results, keyword=question)
+        return self._format_results(results)
 
     # ----------- Helper -----------
-    def _format_results(self, results: list, keyword: str = "") -> str:
+    def _format_results(self, results: list) -> str:
         """Format retrieved exhibits into the standard response template."""
         seen_nos = set()
         entries = []
 
-        for doc in results[:1]:
+        for doc in results[:3]:
             m = doc.metadata
             no = m.get("no", "")
             if no in seen_nos:
@@ -124,17 +124,14 @@ class InformationTool(BaseTool):
             company = m.get("company", "")
             title = m.get("title", "")
             summary = m.get("summary", "")
-            appeal = m.get("appeal", "")
-            detail = f"{summary}{appeal}".strip()
+            summary_short = summary[:50] + "…" if len(summary) > 50 else summary
 
-            prefix = "次に、" if entries else ""
             entries.append(
-                f"{prefix}展示No.{no}・{company}社「{title}」：{detail}を展示しております。"
+                f"展示No.{no}・{company}社「{title}」：{summary_short}"
             )
 
         if not entries:
             return DAILOGUE.get("rag_fallback_message", "関連する情報が見つかりませんでした。")
 
-        keyword_part = f"「{keyword}」についてですが、" if keyword else ""
-        body = " ".join(entries)
-        return f"{keyword_part}{body} 詳細は、各展示場所にてご確認ください。"
+        body = " / ".join(entries)
+        return f"{body} 詳細は各展示場所にてご確認ください。"
