@@ -1,7 +1,7 @@
 import asyncio
 from src.helpers.enums import ActionType
 from src.helpers import logger
-from src.helpers.conf_loader import server_config_loader, SHOW_MAP_TIMEOUT, SESSION_TIMEOUT
+from src.helpers.conf_loader import server_config_loader, SHOW_MAP_TIMEOUT, SESSION_TIMEOUT, RAG_TTS_TIMEOUT
 from src.helpers.maps import BUTTON_TITLE_MAP
 
 # === Logic Handlers ===
@@ -26,9 +26,9 @@ async def process_action(action_type: str, params, room):
             room.ws_manager.set_location_data(params)
 
         case ActionType.END_OF_TTS.value:
-            pass
             ctx = room.session_manager.get_context_memory()
             if ctx and ctx.session_id:
+                ctx.is_waiting_rag_tts = False
                 if ctx.last_tool_name in {"faq_tool"}:
                     ctx.set_is_show_map_page(True)
 
@@ -61,6 +61,7 @@ async def process_chat(user_input: str, room):
 
     ctx = room.session_manager.get_context_memory()
     if ctx and ctx.last_tool_name == "faq_tool":
+        ctx.is_waiting_rag_tts = True
         await room.ws_manager.send_to_client(
             room.message_manager.action_message(ActionType.SHOW_MAP.value), room_id
         )
@@ -123,12 +124,14 @@ async def receive_with_dynamic_timeout(websocket, room):
     
     while True:
         # Get current timeout based on state
-        if room.session_manager.context.session_id is not None and room.session_manager.context.get_is_show_map_page():  
+        ctx = room.session_manager.context
+        if ctx.session_id is not None and ctx.get_is_show_map_page():
             max_timeout = SHOW_MAP_TIMEOUT
-            elapsed = asyncio.get_event_loop().time() - start_time
+        elif ctx.session_id is not None and ctx.is_waiting_rag_tts:
+            max_timeout = RAG_TTS_TIMEOUT
         else:
             max_timeout = SESSION_TIMEOUT
-            elapsed = asyncio.get_event_loop().time() - start_time
+        elapsed = asyncio.get_event_loop().time() - start_time
         
         # Check if we've exceeded the timeout
         if elapsed >= max_timeout:

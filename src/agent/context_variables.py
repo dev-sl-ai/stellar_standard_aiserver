@@ -12,6 +12,7 @@ class ContextMemory:
         self.workflow_active: bool = True
         self.last_tool_name: Optional[str] = None
         self.is_show_map_page: bool = False
+        self.is_waiting_rag_tts: bool = False
     
     def set_button_id(self, button_id: str):
         self.button_id = button_id
