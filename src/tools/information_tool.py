@@ -14,7 +14,6 @@ from src.message_templates.websocket_message_template import (
     WebsocketMessageTemplate,
 )
 from src.helpers.conf_loader import DAILOGUE, server_config_loader
-from src.helpers.enums import ActionType
 
 class InformationInput(BaseModel):
     """Schema for InformationTool input."""
@@ -102,10 +101,6 @@ class InformationTool(BaseTool):
         if not results:
             return DAILOGUE.get("rag_fallback_message", "関連する情報が見つかりませんでした。")
 
-        await self.ws_manager.send_to_client(
-            self.message_manager.action_message(ActionType.SHOW_MAP.value), self.ws_manager.room_id
-        )
-        
         return self._format_results(results)
 
     # ----------- Helper -----------

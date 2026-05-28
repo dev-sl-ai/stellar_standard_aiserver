@@ -57,7 +57,13 @@ async def process_chat(user_input: str, room):
         return
 
     room.session_manager.update_chat_history(user_input, bot_response)
-    await room.ws_manager.send_to_client(room.message_manager.chat_message(bot_response,server_config_loader.get_language()), room_id)
+    await room.ws_manager.send_to_client(room.message_manager.chat_message(bot_response, server_config_loader.get_language()), room_id)
+
+    ctx = room.session_manager.get_context_memory()
+    if ctx and ctx.last_tool_name == "faq_tool":
+        await room.ws_manager.send_to_client(
+            room.message_manager.action_message(ActionType.SHOW_MAP.value), room_id
+        )
 
 
 async def process_chat_action(message: str, action_type: str, params, room):
