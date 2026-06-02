@@ -70,19 +70,21 @@ class RAGBuilder:
             f.write(self._get_file_timestamp())
 
     def create_or_load_vectorstore(self):
+        raw_docs = self._load_documents()
         if os.path.exists(self.vector_db) and not self._is_updated():
             print(f"[{self.name}] Loading existing FAISS index...")
             faiss_store = FAISS.load_local(self.vector_db, self.embedding, allow_dangerous_deserialization=True)
         else:
             print(f"[{self.name}] Creating new FAISS index...")
-            docs = self._split_documents(self._load_documents())
-            faiss_store = FAISS.from_documents(docs, self.embedding)
+            split_docs = self._split_documents(raw_docs)
+            faiss_store = FAISS.from_documents(split_docs, self.embedding)
             faiss_store.save_local(self.vector_db)
             self._save_timestamp()
-        return faiss_store.as_retriever(
+        retriever = faiss_store.as_retriever(
             search_type="mmr",
             search_kwargs={"k": 3, "fetch_k": 10, "lambda_mult": 0.7},
         )
+        return {"retriever": retriever, "docs": raw_docs}
 
 def build_all_retrievers():
     retrievers = {}

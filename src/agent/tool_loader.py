@@ -28,7 +28,8 @@ class ToolLoader:
                 session_manager=self.session_manager,
             ), 
             "faq_tool": lambda: InformationTool(
-                retriever=self.retrievers["kaga_fei_exhibition_faq"],
+                retriever=self.retrievers["kaga_fei_exhibition_faq"]["retriever"],
+                raw_docs=self.retrievers["kaga_fei_exhibition_faq"]["docs"],
                 ws_manager=self.ws_manager,
                 message_manager=self.message_manager,
                 session_manager=self.session_manager,

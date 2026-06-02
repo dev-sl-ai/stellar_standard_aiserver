@@ -2,7 +2,7 @@ host: 0.0.0.0
 language: ja-JP
 phonecall_url: http://127.0.0.1:8080/phone
 port: 8000
+rag_tts_timeout: 180
 session_timeout: 60
 show_map_timeout: 30
-rag_tts_timeout: 180
 translation_cache_file: cache/translation_cache.json

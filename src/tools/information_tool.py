@@ -27,6 +27,7 @@ class InformationTool(BaseTool):
     args_schema: Type[BaseModel] = InformationInput
 
     retriever: Optional[Any] = None
+    raw_docs: Optional[list] = None
     ws_manager: Optional[WebSocketManager] = None
     message_manager: Optional[WebsocketMessageTemplate] = None
     session_manager: Optional[ChatSessionManager] = None
@@ -39,6 +40,31 @@ class InformationTool(BaseTool):
         if '-' in lang_code:
             return lang_code.split('-')[0].lower()
         return lang_code.lower()
+
+    # ----------- Keyword Search -----------
+    def _keyword_search(self, query: str) -> list:
+        """Exact-match search on company name and title metadata."""
+        if not self.raw_docs:
+            return []
+        matches = []
+        seen_nos = set()
+        for doc in self.raw_docs:
+            m = doc.metadata
+            no = m.get("no", "")
+            if no in seen_nos:
+                continue
+            company = m.get("company", "")
+            title = m.get("title", "")
+            if (company and company in query) or (title and title in query):
+                matches.append(doc)
+                seen_nos.add(no)
+        return matches
+
+    def _merge_results(self, keyword_hits: list, vector_hits: list) -> list:
+        """Keyword hits first; fill remaining slots with non-duplicate vector hits."""
+        seen_nos = {d.metadata.get("no") for d in keyword_hits}
+        extras = [d for d in vector_hits if d.metadata.get("no") not in seen_nos]
+        return (keyword_hits + extras)[:3]
 
     # ----------- Translation Helper -----------
     def _translate_to_japanese(self, query: str) -> str:
@@ -68,10 +94,13 @@ class InformationTool(BaseTool):
         japanese_question = self._translate_to_japanese(question)
 
         try:
-            results = self.retriever.invoke(japanese_question)
+            vector_results = self.retriever.invoke(japanese_question)
         except Exception as e:
             print(f"[RAG Error] {e}")
             return DAILOGUE.get("rag_fallback_message", "情報を取得できませんでした。")
+
+        keyword_results = self._keyword_search(japanese_question)
+        results = self._merge_results(keyword_results, vector_results)
 
         if not results:
             return DAILOGUE.get("rag_fallback_message", "関連する情報が見つかりませんでした。")
@@ -92,11 +121,13 @@ class InformationTool(BaseTool):
         japanese_question = self._translate_to_japanese(question)
 
         try:
-            results = await self.retriever.ainvoke(japanese_question)
-
+            vector_results = await self.retriever.ainvoke(japanese_question)
         except Exception as e:
             print(f"[RAG Async Error] {e}")
             return DAILOGUE.get("rag_fallback_message", "情報を取得できませんでした。")
+
+        keyword_results = self._keyword_search(japanese_question)
+        results = self._merge_results(keyword_results, vector_results)
 
         if not results:
             return DAILOGUE.get("rag_fallback_message", "関連する情報が見つかりませんでした。")
