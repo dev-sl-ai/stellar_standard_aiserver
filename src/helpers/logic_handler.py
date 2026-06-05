@@ -3,6 +3,7 @@ from src.helpers.enums import ActionType
 from src.helpers import logger
 from src.helpers.conf_loader import server_config_loader, SHOW_MAP_TIMEOUT, SESSION_TIMEOUT, RAG_TTS_TIMEOUT
 from src.helpers.maps import BUTTON_TITLE_MAP
+from src.message_templates.websocket_message_template import LanguageData
 
 # === Logic Handlers ===
 async def process_action(action_type: str, params, room):
@@ -92,6 +93,10 @@ async def start_new_session_and_greet(room):
 
 async def end_session_from_client(room):
     """End session requested by client."""
+    await room.ws_manager.send_to_client(
+        room.message_manager.action_message(ActionType.SHOW_ADS_PAGE.value, LanguageData("ja"),),
+        room.room_id,
+    )
     room.session_manager.end_session()
     room.ws_manager.clear_button_id()
     room.ws_manager.waiting_for_response = False
