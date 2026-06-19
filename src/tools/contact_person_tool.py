@@ -9,6 +9,7 @@ from pydantic.v1 import BaseModel
 
 from src.api.websocket_manager import WebSocketManager
 from src.agent.session_manager import ChatSessionManager
+from src.helpers.conf_loader import PUBLIC_BASE_URL
 from src.helpers.enums import ActionType
 from src.message_templates.websocket_message_template import WebsocketMessageTemplate
 
@@ -29,7 +30,8 @@ class ContactPersonTool(BaseTool):
     return_direct: bool = False
 
     async def contact_person(self):
-        action_message = self.message_manager.url_action_message("http://153.127.12.146:8080/contactlist",
+        action_message = self.message_manager.url_action_message(
+            f"{PUBLIC_BASE_URL}/contactlist",
             ActionType.SHOW_PHONE_PAGE.value
         )
         await self.ws_manager.send_to_client(action_message, self.ws_manager.room_id)

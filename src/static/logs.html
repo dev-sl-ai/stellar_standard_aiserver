@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIアバターステラログダウンロード</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center font-sans">
+  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
+    <h1 class="text-2xl font-bold text-gray-800 text-center mb-6">AIアバターステラ</h1>
+    <h1 class="text-2xl font-bold text-gray-800 text-center mb-6">ログダウンロード</h1>
+    <div class="space-y-4 mb-6">
+      <div>
+        <label for="start" class="block text-sm font-medium text-gray-600 mb-1">開始日</label>
+        <input id="start" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div>
+        <label for="end" class="block text-sm font-medium text-gray-600 mb-1">終了日</label>
+        <input id="end" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <button id="btn-unity" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">Unityログ</button>
+      <button id="btn-server" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-lg transition">サーバーログ</button>
+    </div>
+
+    <p id="message" class="text-sm text-center mt-4 min-h-[1.25rem]"></p>
+  </div>
+
+  <script>
+    const startInput = document.getElementById("start");
+    const endInput = document.getElementById("end");
+    const message = document.getElementById("message");
+
+    function showMessage(text, isError) {
+      message.textContent = text;
+      message.className = "text-sm text-center mt-4 min-h-[1.25rem] " +
+        (isError ? "text-red-600" : "text-gray-600");
+    }
+
+    async function download(type) {
+      const start = startInput.value;
+      const end = endInput.value;
+
+      if (!start || !end) {
+        showMessage("開始日と終了日を選択してください。", true);
+        return;
+      }
+      if (start > end) {
+        showMessage("開始日は終了日以前にしてください。", true);
+        return;
+      }
+
+      const url = `/api/logs/download?type=${type}&start=${start}&end=${end}`;
+      showMessage("ダウンロードを準備しています...", false);
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          let detail = "ダウンロードに失敗しました。";
+          try { detail = (await res.json()).detail || detail; } catch (_) {}
+          showMessage(detail, true);
+          return;
+        }
+        const blob = await res.blob();
+        const disposition = res.headers.get("Content-Disposition") || "";
+        const match = disposition.match(/filename="?([^"]+)"?/);
+        const filename = match ? match[1] : `${type}_logs.zip`;
+
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(link.href);
+        showMessage("ダウンロードを開始しました。", false);
+      } catch (err) {
+        showMessage("通信エラーが発生しました。", true);
+      }
+    }
+
+    document.getElementById("btn-unity").addEventListener("click", () => download("unity"));
+    document.getElementById("btn-server").addEventListener("click", () => download("server"));
+  </script>
+</body>
+</html>

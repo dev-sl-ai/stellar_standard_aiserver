@@ -1,17 +1,4 @@
-fuzai_menu: richmenu-5d0078ecd2794c49a7a3f2b40690a6e7
-hanzaitaku_menu: richmenu-8ac865401850a1c136452d5bcab748cb
-host: 0.0.0.0
 language: ja-JP
-line_ids:
-  user1:
-  - U909afe4de2c0d3c32de453a1f4122c25
-  - U909afe4de2c0d3c32de453a1f4122c25
-  user2:
-  - U909afe4de2c0d3c32de453a1f4122c25
-line_messages: false
-line_wait_time: 20
-mode: 在宅モード
-ngrok_url: https://rested-stag-adapting.ngrok-free.app
-phonecall_url: http://127.0.0.1:8080/phone
-port: 8000
-zaitaku_menu: richmenu-af2055ac311c9cbfcf8a30ac48b21b5e
+public_base_url: https://153.126.190.186:8000
+phonecall_url: https://153.126.190.186:8000/phone
+proxy_url_base: https://153.126.190.186:8000/proxy?target=

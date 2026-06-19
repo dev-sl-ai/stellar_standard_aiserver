@@ -5,14 +5,27 @@ import time
 from pathlib import Path
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from src.api.webhook_api import router as webhook_router
-from src.api.phone_api import router as phone_router
+
+class NoCacheStaticFiles(StaticFiles):
+    """Serve static assets with no-cache headers so edited files (e.g.
+    contact_list.xlsx, list.js, style.css) are always re-fetched by the webview."""
+
+    async def get_response(self, path, scope):
+        response = await super().get_response(path, scope)
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
+
+from src.api.unity_log_api import router as unity_log_router
+from src.api.log_download_api import router as log_download_router
 from src.helpers import logger
-from src.helpers.conf_loader import GREET_MSG, server_config_loader, DAILOGUE
-from src.helpers.enums import ActionType, MessageType, Mode
+from src.helpers.conf_loader import GREET_MSG, server_config_loader
+from src.helpers.enums import ActionType, MessageType
 from src.helpers import system_flags
 from src.helpers.website_handler import handle_phonecall_action
 from src.llm.llm_manager import is_valid_japanese_phone_number
@@ -20,13 +33,22 @@ from src.message_templates.websocket_message_template import LanguageData
 from src.room_manager import get_or_create_room, remove_room, get_active_rooms
 
 app = FastAPI()
-app.include_router(webhook_router)
-app.include_router(phone_router)
+
+# WebGL build is served from a different origin than this API, so the browser
+# requires CORS headers (and OPTIONS preflight) for POST /api/unity-log.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["POST", "OPTIONS"],
+    allow_headers=["Content-Type"],
+)
+
+app.include_router(unity_log_router)
+app.include_router(log_download_router)
 
 # Serve static files
 base_dir = os.path.dirname(__file__)
-app.mount("/line_images", StaticFiles(directory=os.path.join(base_dir, "line_images")), name="line_images")
-app.mount("/static", StaticFiles(directory=os.path.join(base_dir, "static")), name="static")
+app.mount("/static", NoCacheStaticFiles(directory=os.path.join(base_dir, "static")), name="static")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -44,6 +66,12 @@ def contact_list():
 @app.get("/phone", response_class=HTMLResponse)
 def read_phone():
     html_path = Path(base_dir) / "static" / "phone.html"
+    return html_path.read_text(encoding="utf-8")
+
+
+@app.get("/logs", response_class=HTMLResponse)
+def read_logs():
+    html_path = Path(base_dir) / "static" / "logs.html"
     return html_path.read_text(encoding="utf-8")
 
 
@@ -137,7 +165,7 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                     asyncio.create_task(process_chat(data.message, room))
 
             elif data.type == MessageType.ACTION.value:
-                if room.session_manager.get_context_memory().session_id is not None or data.action_type == ActionType.START_SESSION.value or data.action_type == ActionType.PHONECALL_ACTION.value or data.action_type == ActionType.PHONEEND_ACTION.value or data.action_type == ActionType.CHECK_CURRENT_MODE.value or data.action_type == ActionType.SET_LANGUAGE.value or data.action_type == ActionType.SET_LOCATION.value:
+                if room.session_manager.get_context_memory().session_id is not None or data.action_type == ActionType.START_SESSION.value or data.action_type == ActionType.PHONECALL_ACTION.value or data.action_type == ActionType.PHONEEND_ACTION.value or data.action_type == ActionType.SET_LANGUAGE.value or data.action_type == ActionType.SET_LOCATION.value:
                     asyncio.create_task(process_action(data.action_type, data.params, room))
 
             elif data.type == MessageType.CHAT_ACTION.value:
@@ -217,24 +245,6 @@ async def process_action(action_type: str, params, room):
         case ActionType.PHONEEND_ACTION.value:
             system_flags.set_phone_call_active(False)
 
-        case ActionType.CHECK_CURRENT_MODE.value:
-            mode = server_config_loader.get_mode()
-            logger.info(f"[{room_id}] Current mode: {mode}")
-            if mode in (Mode.ZAITAKU.value, Mode.HANZAITAKU.value):
-                await room.ws_manager.send_to_client(
-                    room.message_manager.chat_action_message(
-                        DAILOGUE["message_for_direct_call"], ActionType.SHOW_PHONE_PAGE.value
-                    ),
-                    room_id,
-                )
-            else:
-                await room.ws_manager.send_to_client(
-                    room.message_manager.chat_action_message(
-                        DAILOGUE["reply_message_for_yoyaku_nashi"], ActionType.SHOW_TOP.value
-                    ),
-                    room_id,
-                )
-
         case ActionType.END_OF_TTS.value:
             ctx = room.session_manager.get_context_memory()
             if ctx and ctx.session_id:
@@ -254,7 +264,6 @@ async def process_chat(user_input: str, room):
         {
             "input": f"{lang_instr}\n{user_input}",
             "chat_history": room.session_manager.get_chat_data()["chat_history"],
-            "mode": server_config_loader.get_mode(),
         }
     )
 

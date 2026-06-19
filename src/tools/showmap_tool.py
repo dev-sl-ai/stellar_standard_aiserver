@@ -10,6 +10,7 @@ from pydantic.v1 import BaseModel
 from src.api.websocket_manager import WebSocketManager
 from src.agent.session_manager import ChatSessionManager
 from src.helpers.enums import ActionType
+from src.helpers.url_proxy import proxy_url
 from src.message_templates.websocket_message_template import WebsocketMessageTemplate
 
 
@@ -29,7 +30,9 @@ class ShowMapTool(BaseTool):
     return_direct: bool = True
 
     async def show_map(self):
-        action_message = self.message_manager.url_action_message("https://www.google.com/maps/place/%E5%AF%8C%E5%A3%AB%E5%B7%9D%E3%83%93%E3%83%AB/@35.6911746,139.7379521,16z/data=!4m6!3m5!1s0x60188d0b8cf39fb7:0xb09b2be9c9dae438!8m2!3d35.6914891!4d139.7397957!16s%2Fg%2F11fj3tclmz?hl=ja&entry=ttu&g_ep=EgoyMDI1MTAxMy4wIKXMDSoASAFQAw%3D%3D",
+        maps_url = "https://www.google.com/maps/place/%E5%AF%8C%E5%A3%AB%E5%B7%9D%E3%83%93%E3%83%AB/@35.6911746,139.7379521,16z/data=!4m6!3m5!1s0x60188d0b8cf39fb7:0xb09b2be9c9dae438!8m2!3d35.6914891!4d139.7397957!16s%2Fg%2F11fj3tclmz?hl=ja&entry=ttu&g_ep=EgoyMDI1MTAxMy4wIKXMDSoASAFQAw%3D%3D"
+        action_message = self.message_manager.url_action_message(
+            proxy_url(maps_url),
             ActionType.SHOW_MAP.value
         )
         await self.ws_manager.send_to_client(action_message, self.ws_manager.room_id)

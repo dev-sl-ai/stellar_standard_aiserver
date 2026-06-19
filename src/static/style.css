@@ -1,103 +1,128 @@
 html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #ffffff;
-      overflow: hidden;
-      font-family: "Noto Sans JP", sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  font-family: "Noto Sans JP", sans-serif;
 }
 
+/* Body is a vertical flex container so headers stay fixed and lists scroll. */
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ===== Phone / call UI ===== */
 #call-frame {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  height: 100%;
-  padding: 60px 20px;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 5% 4%;
   background-color: #ffffff;
   box-sizing: border-box;
 }
 
-#contact-list{
+/* ===== Contact list ===== */
+#contact-list {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  height: 100%;
-  padding: 40px 20px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;          /* scroll when the list is long */
+  padding: 3% 4%;
   background-color: #ffffff;
   box-sizing: border-box;
 }
 
+/* ===== Text headers (fluid: shrink to fit, wrap instead of clipping) ===== */
 #title {
-  font-size: 40px;
+  font-size: clamp(16px, 5vw, 40px);
   font-weight: 600;
   text-align: center;
   color: #111827;
-  margin-top: 10px;
+  margin: 2% 0 0;
+  word-break: break-word;
+  line-height: 1.25;
 }
 
 #branch-header {
-  font-size: 50px;
+  font-size: clamp(16px, 5vw, 50px);
   font-weight: 600;
   text-align: center;
   color: #111827;
-  margin-bottom: 30px;
+  margin: 4% 0 2%;
+  word-break: break-word;
+  line-height: 1.25;
 }
 
 #nametitle {
-  font-size: 60px;
+  font-size: clamp(20px, 6vw, 60px);
   font-weight: 600;
   text-align: center;
   color: #111827;
-  margin-top: 10px;
+  margin: 3% 2% 1%;
+  flex: 0 0 auto;
+  word-break: break-word;
+  line-height: 1.25;
 }
 
 #agent-name {
-  font-size: 40px;
+  font-size: clamp(18px, 5vw, 40px);
   font-weight: 700;
   text-align: center;
   color: #111827;
-  margin-top: 20px;
+  margin-top: 4%;
+  word-break: break-word;
 }
 
 #status-text {
-    font-size: 40px;
-    text-align: center;
-    margin-top: 10px;
+  font-size: clamp(18px, 5vw, 40px);
+  text-align: center;
+  margin-top: 2%;
 }
 
+/* ===== Avatar (scales with the smaller viewport dimension) ===== */
 #avatar {
-  width: 260px;
-  height: 260px;
+  width: clamp(80px, 35vmin, 260px);
+  height: clamp(80px, 35vmin, 260px);
   background-color: #d1d5db;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 40px;
+  margin-top: 4%;
+  flex: 0 0 auto;
 }
 
 #avatar svg {
-  width: 150px;
-  height: 150px;
+  width: 58%;
+  height: 58%;
   color: #4b5563;
 }
 
+/* ===== Call button ===== */
 #call-button {
   background-color: #22c55e;
   color: white;
-  width: 200px;
-  height: 150px;
+  width: clamp(90px, 28vmin, 200px);
+  height: clamp(70px, 21vmin, 150px);
   border-radius: 10%;
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
   transition: background-color 0.3s;
-  margin-bottom: 60px;
+  margin-bottom: 4%;
+  flex: 0 0 auto;
 }
 
 #call-button:hover {
@@ -105,23 +130,31 @@ html, body {
 }
 
 #call-button svg {
-  width: 72px;
-  height: 72px;
+  width: 40%;
+  height: 40%;
   color: white;
 }
 
+/* ===== Contact button (one per person) ===== */
 #contact-button {
   background-color: #263A4D;
   color: white;
-  font-size: 40px;
+  font-size: clamp(16px, 4.5vw, 40px);
   text-align: center;
-  width: 250px;
-  height: 150px;
-  border-radius: 5%;
+  width: min(90%, 250px);
+  padding: 3% 4%;
+  border-radius: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
   transition: background-color 0.3s;
-  margin-bottom: 20px;
+  margin-bottom: 3%;
+  cursor: pointer;
+  flex: 0 0 auto;
+  word-break: break-word;
+}
+
+#contact-button:hover {
+  background-color: #1b2a38;
 }

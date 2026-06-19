@@ -1,12 +1,6 @@
 from enum import Enum
 
 
-class Mode(Enum):
-    ZAITAKU = "在宅モード"
-    HANZAITAKU = "半在宅モード"
-    FUZAI = "不在モード"
-
-
 class MessageType(Enum):
     CHAT = "chat"
     ACTION = "action"
@@ -39,7 +33,6 @@ class ActionType(Enum):
     SHOW_BOCHI = "show_bochi"
     SHOW_PET = "show_pet"
     SHOW_CONFIRM_FOR_DENGON = "show_confirm_for_dengon"
-    CHECK_CURRENT_MODE = "check_current_mode"
     SHOW_PHONE_PAGE = "show_phone_page"
     END_OF_TTS = "end_of_TTS"
     SHOW_POINT_OUT = "show_pointout"

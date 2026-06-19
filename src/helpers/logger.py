@@ -1,9 +1,10 @@
 import os
 import logging
-from pathlib import Path
 from rich.console import Console
 from rich.logging import RichHandler
 from logging.handlers import TimedRotatingFileHandler
+
+from src.helpers.log_paths import DEV_LOG_DIR
 
 class Logger:
     def __init__(self, name: str = None):
@@ -13,9 +14,8 @@ class Logger:
         self.logger.setLevel(logging.DEBUG)
         self.logger.propagate = False
 
-        # Set log directory
-        desktop_path = Path.home() / "Desktop"
-        log_dir = desktop_path / "AIアバターSTELLAデモ版" / "logs" / "dev"
+        # Set log directory (configurable via LOG_DIR; see src/helpers/log_paths.py)
+        log_dir = DEV_LOG_DIR
         os.makedirs(log_dir, exist_ok=True)
 
         # Developer file log: daily, named with date
