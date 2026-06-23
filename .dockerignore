@@ -1,0 +1,34 @@
+
+.git/
+# Virtual environments
+chatbotenv/
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+cache/
+
+# Tests
+unit_test/
+
+# Build artifacts
+*.spec
+dist/
+build/
+
+# Archives
+*.tar
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.zip
+
+# Claude
+.claude/
+CLAUDE.md
+

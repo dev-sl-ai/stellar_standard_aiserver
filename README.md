@@ -36,20 +36,11 @@ API Keys file (.env)は関係者から貰ってください。
 ```
 以下の表示が出ったらサーバー起動完了
 ```
-[07/07/25 15:58:24] INFO     サーバー起動 モード: 在宅モード
 INFO:     Started server process [14504]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
 ```
-
-## 2. LINE webhook 実行
-
-以下コメンドを実行する:
-```
->> python ngrok_runner.py
-```
-ngrok_runner.py (security token がある為)関係者から貰ってください。
 
 ----
 
@@ -74,7 +65,7 @@ Some of the UI inputs which required Unity can't be used.
 - To modify AI prompt, rag information, tool usage, update
 [src\configs\AI_conf.yaml](src\configs\AI_conf.yaml).
 
-- LINE ID, モード, などの情報は　
+- サーバー設定 (ホスト/ポート, タイムアウト, 公開URLなど) は　
 [src\configs\server_conf.yaml](src\configs\server_conf.yaml)　に更新してください。
 
 - 電話対応機能の　電話番号は　[src\static\config.yaml](src\static\config.yaml)　に更新してください。

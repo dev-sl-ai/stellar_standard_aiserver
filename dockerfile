@@ -5,6 +5,9 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
+# Persist logs outside the container's writable layer; bind-mount this at runtime
+# (e.g. -v /opt/aiserver/logs:/app/logs) so logs survive container removal.
+ENV LOG_DIR=/app/logs
 
 # Install system dependencies for FAISS, OpenCV, Selenium, etc.
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -28,8 +31,14 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
-COPY . /app
+# Copy only what the app needs at runtime (avoids pulling in .git, *.tar, etc.)
+COPY runner.py shutdown.py ./
+COPY .env ./
+COPY src/ ./src/
+COPY data/ ./data/
+
+# Persisted log directory (bind-mount to a host folder at runtime)
+VOLUME ["/app/logs"]
 
 # Expose FastAPI port
 EXPOSE 8080
