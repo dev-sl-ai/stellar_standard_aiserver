@@ -30,7 +30,6 @@ from pydantic.v1 import BaseModel, Field
 from src.api.websocket_manager import WebSocketManager
 from src.agent.session_manager import ChatSessionManager
 from src.helpers.enums import ActionType
-from src.helpers.url_proxy import proxy_url
 from src.message_templates.websocket_message_template import WebsocketMessageTemplate
 
 
@@ -253,7 +252,7 @@ class ShowWeatherTool(BaseTool):
 
         # Send action to the client (rendered through the client-side proxy)
         action_message = self.message_manager.url_action_message(
-            proxy_url(website_url),
+            website_url,
             ActionType.SHOW_WEATHER.value
         )
         await self.ws_manager.send_to_client(action_message, self.ws_manager.room_id)
@@ -275,39 +274,3 @@ class ShowWeatherTool(BaseTool):
     ) -> str:
         self.session_manager.context.last_tool_name = self.name
         return await self.show_weather_info(location)
-
-
-# def get_weather_website_url(self, location: dict) -> str:
-#     """Windy embed centered on the user's location, with marker + forecast panel."""
-#     lat = location["lat"]
-#     lon = location["lon"]
-#     return (
-#         "https://embed.windy.com/embed2.html?"
-#         f"lat={lat}&lon={lon}&zoom=9"
-#         f"&detailLat={lat}&detailLon={lon}"   # bottom forecast panel for this point
-#         "&detail=true"                          # show the forecast strip
-#         "&marker=true"                          # drop a marker at the location
-#         "&message=true"                         # show the detail message/panel
-#         "&overlay=temp"                         # temperature layer (like your image)
-#         "&level=surface&type=map&location=coordinates"
-#         "&metricTemp=%C2%B0C&metricWind=default&calendar=now&radarRange=-1"
-#     )
-
-# import urllib.parse
-
-# def get_weather_website_url(self, location: dict) -> str:
-#     """Ventusky embed centered on the user's location with a marker."""
-#     lat = location["lat"]
-#     lon = location["lon"]
-#     label = urllib.parse.quote(self.get_location_string(location) or "現在地")
-#     return (
-#         f"https://embed.ventusky.com/?p={lat};{lon};7"
-#         f"&l=temperature-2m"
-#         f"&pin={lat};{lon};dot;{label}"
-#     )
-
-# def get_weather_website_url(self, location: dict) -> str:
-#     """Ventusky map centered on the user's coordinates (path-style URL)."""
-#     lat = round(location["lat"], 4)   # round for a clean URL (optional)
-#     lon = round(location["lon"], 4)
-#     return f"https://www.ventusky.com/{lat};{lon}"

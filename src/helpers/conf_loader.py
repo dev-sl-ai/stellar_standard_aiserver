@@ -67,7 +67,4 @@ RAG_CONF = ai_config.get("rag", {})
 # Public HTTPS origin that serves the WebGL build (nginx TLS host). Used to build
 # absolute URLs pushed to the client so they stay same-origin HTTPS (no mixed content).
 PUBLIC_BASE_URL = server_config.get("public_base_url", "").rstrip("/")
-# Client-side proxy used to render external sites (JMA, Google Maps) in the WebGL webview.
-# The target URL is percent-encoded and appended after "target=".
-PROXY_URL_BASE = server_config.get("proxy_url_base", "http://127.0.0.1:8989/proxy?target=")
 PHONECALL_URL = server_config.get("phonecall_url", "https://153.126.190.186:8000/phone")
