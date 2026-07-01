@@ -8,7 +8,7 @@ from langchain.docstore.document import Document
 from src.helpers.conf_loader import RAG_CONF, MODELS_CONF
 
 class RAGBuilder:
-    def __init__(self, name: str, config: dict, embedding_model: str, chunk_size: int, chunk_overlap: int):
+    def __init__(self, name: str, config: dict, embedding_model: str, chunk_size: int, chunk_overlap: int, top_k: int = 3):
         self.name = name
         self.source_data = config["source_data"]
         self.vector_db = config["vector_db"]
@@ -16,6 +16,7 @@ class RAGBuilder:
         self.embedding_model = embedding_model
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
+        self.top_k = top_k
         self.embedding = OpenAIEmbeddings(model=embedding_model)
 
     def _load_documents(self) -> List[Document]:
@@ -59,7 +60,7 @@ class RAGBuilder:
             faiss_store = FAISS.from_documents(docs, self.embedding)
             faiss_store.save_local(self.vector_db)
             self._save_timestamp()
-        return faiss_store.as_retriever()
+        return faiss_store.as_retriever(search_kwargs={"k": self.top_k})
 
 def build_all_retrievers():
     retrievers = {}
@@ -70,6 +71,7 @@ def build_all_retrievers():
             embedding_model=MODELS_CONF["embedding"]["model_name"],
             chunk_size=MODELS_CONF["embedding"]["chunk_size"],
             chunk_overlap=MODELS_CONF["embedding"]["chunk_overlap"],
+            top_k=MODELS_CONF["embedding"].get("top_k", 3),
         )
         retrievers[dataset["name"]] = builder.create_or_load_vectorstore()
     return retrievers

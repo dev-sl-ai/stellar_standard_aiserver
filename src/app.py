@@ -23,10 +23,12 @@ class NoCacheStaticFiles(StaticFiles):
 
 from src.api.unity_log_api import router as unity_log_router
 from src.api.log_download_api import router as log_download_router
+from src.api.azure_token_api import router as azure_token_router
 from src.helpers import logger
 from src.helpers.conf_loader import GREET_MSG, server_config_loader
 from src.helpers.enums import ActionType, MessageType
 from src.helpers import system_flags
+from src.helpers.translation_util import localize_from_ja
 from src.helpers.website_handler import handle_phonecall_action
 from src.llm.llm_manager import is_valid_japanese_phone_number
 from src.message_templates.websocket_message_template import LanguageData
@@ -39,12 +41,13 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
 
 app.include_router(unity_log_router)
 app.include_router(log_download_router)
+app.include_router(azure_token_router)
 
 # Serve static files
 base_dir = os.path.dirname(__file__)
@@ -129,7 +132,7 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                     ctx = room.session_manager.get_context_memory()
                     if ctx and ctx.session_id:
                         await room.ws_manager.send_to_client(
-                            room.message_manager.chat_message("セッションがタイムアウトしました。"),
+                            room.message_manager.chat_message(localize_from_ja("セッションがタイムアウトしました。")),
                             room_id,
                         )
                         await end_session(room)
