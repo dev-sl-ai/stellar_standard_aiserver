@@ -1,5 +1,6 @@
-/data
-/unit_test/test_llm.py
+*.faiss
+*.pkl
+
 *.jpg
 node_modules/
 *.zip
