@@ -40,13 +40,13 @@ class ToolLoader:
                 session_manager=self.session_manager,
             ),
             "faq_tool": lambda: InformationTool(
-                retriever=self.retrievers["iwasaki_exhibition_faq"],
+                retriever=self.retrievers["visitor_reception_faq"],
                 ws_manager=self.ws_manager,
                 message_manager=self.message_manager,
                 session_manager=self.session_manager,
                 user_profile=self.user_profile,
                 name="faq_tool",
-                description="展示会に関するFAQ情報を取得するツール。",
+                description="来訪者対応・受付に関するFAQ情報を取得するツール。",
             ),
             "show_map": lambda: ShowMapTool(
                 ws_manager=self.ws_manager,
@@ -58,7 +58,7 @@ class ToolLoader:
 
         # Map button ID to list of tools and their default
         self.button_tool_map: Dict[str, List[str]] = {
-            "button_1": ["weather_info", "websearch", "contact_person", "faq_tool", "show_map"],
+            "button_1": ["weather_info", "contact_person", "faq_tool"],
         }
 
         self.default_tool_map: Dict[str, str] = {

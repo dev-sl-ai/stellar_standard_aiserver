@@ -1,8 +1,6 @@
 import os
-import shutil
 from pathlib import Path
 # from src.helpers.maps import BUTTON_TITLE_MAP
-from src.helpers.logger import logger
 
 def write_user_session_log(ctx):
     """
@@ -49,37 +47,3 @@ def write_user_session_log(ctx):
                         f.write(avatar_line + "\n")
                         previous_line = avatar_line
 
-
-def copy_image_to_log_folder(ctx):
-    """
-    src/line_images フォルダ内の画像ファイルを1つだけ user_log_dir にコピーする。
-    """
-    if not ctx.session_id:
-        return  # No active session
-
-    desktop_path = Path.home() / "Desktop"
-    user_log_dir = desktop_path / "AIアバターSTELLA" / "logs" / "user"
-    os.makedirs(user_log_dir, exist_ok=True)
-    
-    line_images_dir = Path(__file__).resolve().parent.parent / "line_images"
-    if not line_images_dir.exists():
-        return
-
-    image_files = list(line_images_dir.glob("*.*"))  # 任意の拡張子（画像ファイル）を取得
-    if not image_files:
-        return
-
-    matching = list(line_images_dir.glob(f"{ctx.session_id}*.*"))
-    if not matching:
-        return
-    
-    src_image = matching[0]  # 最初の画像ファイルを選択
-    dst_image = user_log_dir / src_image.name
-
-    try:
-        shutil.copy2(src_image, dst_image)
-        logger.info(f"画像をコピーしました: {src_image} → {dst_image}")
-    except Exception as e:
-        logger.error(f"画像のコピー中にエラーが発生しました: {e}")
-
-                

@@ -95,6 +95,7 @@ class InformationTool(BaseTool):
             return "RAG Retrieverが設定されていません。"
 
         self.session_manager.context.last_tool_name = self.name
+        self.session_manager.context.last_faq_query = question
 
         # Translate question to Japanese before retrieval
         japanese_question = self._translate_to_japanese(question)

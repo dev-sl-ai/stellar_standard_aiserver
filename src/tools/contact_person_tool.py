@@ -26,10 +26,10 @@ class ContactPersonTool(BaseTool):
     ws_manager: Optional[WebSocketManager] = None
     message_manager: Optional[WebsocketMessageTemplate] = None
     session_manager: Optional[ChatSessionManager] = None
-    return_direct: bool = False
+    return_direct: bool = True
 
     async def contact_person(self):
-        action_message = self.message_manager.url_action_message("http://153.127.12.146:8080/contactlist",
+        action_message = self.message_manager.url_action_message("http://153.126.190.186:8080/contactlist",
             ActionType.SHOW_PHONE_PAGE.value
         )
         await self.ws_manager.send_to_client(action_message, self.ws_manager.room_id)

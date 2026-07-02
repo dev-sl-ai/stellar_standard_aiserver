@@ -22,6 +22,7 @@ class ContextMemory:
         self.memory_log: list = []
         self.workflow_active: bool = True
         self.last_tool_name: Optional[str] = None
+        self.last_faq_query: Optional[str] = None
 
     def add_memory(self, memory: str):
         self.memory_log.append(memory)

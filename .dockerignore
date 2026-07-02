@@ -1,0 +1,15 @@
+.git
+.gitignore
+__pycache__/
+*.pyc
+chatbotenv/
+venv/
+node_modules/
+*.log
+.pytest_cache/
+.vscode/
+.idea/
+dist/
+build/
+*.egg-info/
+unit_test/

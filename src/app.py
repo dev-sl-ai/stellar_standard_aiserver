@@ -8,11 +8,9 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from src.api.webhook_api import router as webhook_router
-from src.api.phone_api import router as phone_router
 from src.helpers import logger
-from src.helpers.conf_loader import GREET_MSG, server_config_loader, DAILOGUE
-from src.helpers.enums import ActionType, MessageType, Mode
+from src.helpers.conf_loader import GREET_MSG, server_config_loader
+from src.helpers.enums import ActionType, MessageType
 from src.helpers import system_flags
 from src.helpers.website_handler import handle_phonecall_action
 from src.llm.llm_manager import is_valid_japanese_phone_number
@@ -20,12 +18,9 @@ from src.message_templates.websocket_message_template import LanguageData
 from src.room_manager import get_or_create_room, remove_room, get_active_rooms
 
 app = FastAPI()
-app.include_router(webhook_router)
-app.include_router(phone_router)
 
 # Serve static files
 base_dir = os.path.dirname(__file__)
-app.mount("/line_images", StaticFiles(directory=os.path.join(base_dir, "line_images")), name="line_images")
 app.mount("/static", StaticFiles(directory=os.path.join(base_dir, "static")), name="static")
 
 
@@ -128,7 +123,7 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                     asyncio.create_task(process_chat(data.message, room))
 
             elif data.type == MessageType.ACTION.value:
-                if room.session_manager.get_context_memory().session_id is not None or data.action_type == ActionType.START_SESSION.value or data.action_type == ActionType.PHONECALL_ACTION.value or data.action_type == ActionType.PHONEEND_ACTION.value or data.action_type == ActionType.CHECK_CURRENT_MODE.value or data.action_type == ActionType.SET_LANGUAGE.value or data.action_type == ActionType.SET_LOCATION.value:
+                if room.session_manager.get_context_memory().session_id is not None or data.action_type == ActionType.START_SESSION.value or data.action_type == ActionType.PHONECALL_ACTION.value or data.action_type == ActionType.PHONEEND_ACTION.value or data.action_type == ActionType.SET_LANGUAGE.value or data.action_type == ActionType.SET_LOCATION.value:
                     asyncio.create_task(process_action(data.action_type, data.params, room))
 
             elif data.type == MessageType.CHAT_ACTION.value:
@@ -208,24 +203,6 @@ async def process_action(action_type: str, params, room):
         case ActionType.PHONEEND_ACTION.value:
             system_flags.set_phone_call_active(False)
 
-        case ActionType.CHECK_CURRENT_MODE.value:
-            mode = server_config_loader.get_mode()
-            logger.info(f"[{room_id}] Current mode: {mode}")
-            if mode in (Mode.ZAITAKU.value, Mode.HANZAITAKU.value):
-                await room.ws_manager.send_to_client(
-                    room.message_manager.chat_action_message(
-                        DAILOGUE["message_for_direct_call"], ActionType.SHOW_PHONE_PAGE.value
-                    ),
-                    room_id,
-                )
-            else:
-                await room.ws_manager.send_to_client(
-                    room.message_manager.chat_action_message(
-                        DAILOGUE["reply_message_for_yoyaku_nashi"], ActionType.SHOW_TOP.value
-                    ),
-                    room_id,
-                )
-
         case ActionType.END_OF_TTS.value:
             ctx = room.session_manager.get_context_memory()
             if ctx and ctx.session_id:
@@ -238,14 +215,12 @@ async def process_action(action_type: str, params, room):
 async def process_chat(user_input: str, room):
     """Process chat input and generate response for the given room."""
     room_id = room.room_id
-    room.session_manager.update_chat_history(user_input, "")
     lang_instr = _get_language_instruction(server_config_loader.get_language())
 
     response = await room.agent_executor.run(
         {
             "input": f"{lang_instr}\n{user_input}",
             "chat_history": room.session_manager.get_chat_data()["chat_history"],
-            "mode": server_config_loader.get_mode(),
         }
     )
 
@@ -260,7 +235,9 @@ async def process_chat(user_input: str, room):
         logger.info(f"[{room_id}] Empty bot response.")
         return
 
-    room.session_manager.update_chat_history(user_input, bot_response)
+    ctx = room.session_manager.get_context_memory()
+    resolved_query = ctx.last_faq_query if ctx.last_tool_name == "faq_tool" else None
+    room.session_manager.update_chat_history(user_input, bot_response, history_input=resolved_query)
     await room.ws_manager.send_to_client(room.message_manager.chat_message(bot_response), room_id)
 
 

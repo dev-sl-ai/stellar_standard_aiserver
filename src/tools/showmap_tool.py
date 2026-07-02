@@ -20,8 +20,8 @@ class ShowMapToolInput(BaseModel):
 class ShowMapTool(BaseTool):
     name: str = "show_map"
     description: str = (
-        "展示会の会場マップを表示するツール。"
-        "会場の場所・所在地・住所・行き方・アクセス方法を聞かれたとき、または「会場はどこですか」「どこで開催されますか」のような質問に必ず使用してください。"
+        "会場マップを表示するツール。"
+        "会場の場所・所在地・住所・行き方・アクセス方法を聞かれたとき、または「会場はどこですか」「どこにありますか」のような質問に必ず使用してください。"
     )
     args_schema: Type[BaseModel] = ShowMapToolInput
     ws_manager: Optional[WebSocketManager] = None

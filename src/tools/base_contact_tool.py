@@ -7,9 +7,9 @@ from src.agent.session_manager import ChatSessionManager
 from src.agent.context_variables import ContextMemory
 from src.llm.intent_classifier import intent_chain, correction_chain
 from src.helpers.logger import logger
-from src.helpers.enums import ActionType, Mode
+from src.helpers.enums import ActionType
 from src.helpers.maps import BUTTON_TITLE_MAP
-from src.helpers.conf_loader import DAILOGUE, LINE_USER1, LINE_USER2
+from src.helpers.conf_loader import DAILOGUE
 
 class ContactToolInput(BaseModel):
     tool_input: str
@@ -89,13 +89,3 @@ class BaseContactTool(BaseTool):
         elif self.context_memory.button_id == "button_3":
             self.context_memory.purpose = "設備について"
         self.context_memory.name_retry += 1
-            
-    def decide_person2contact(self, mode: str, person2contact: list):
-        line_ids = []
-        if "user2" in person2contact and mode == Mode.HANZAITAKU.value:
-            line_ids = LINE_USER1 + LINE_USER2
-            logger.info(f"住職・奥様 LINE ID : {line_ids}にメッセージ通信します。")
-        else:
-            line_ids = LINE_USER1
-            logger.info(f"住職 LINE ID : {line_ids[0]}にメッセージ通信します。")
-        return line_ids

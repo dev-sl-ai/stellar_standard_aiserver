@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  fetch("static/contact_list.xlsx")
+  fetch("static/contact_list.xlsx?t=" + Date.now(), { cache: "no-store" })
     .then(res => res.arrayBuffer())
     .then(buffer => {
       const workbook = XLSX.read(buffer, { type: "array" });
