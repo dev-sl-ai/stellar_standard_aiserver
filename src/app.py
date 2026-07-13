@@ -122,20 +122,35 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
         room_id,
     )
 
+    idle_timeout_count = 0
     try:
         while True:
             try:
                 message = await asyncio.wait_for(websocket.receive_text(), timeout=120)
+                idle_timeout_count = 0
             except asyncio.TimeoutError:
-                logger.info(f"[{room_id}] Connection idle timeout.")
-                if not system_flags.get_phone_call_active():
-                    ctx = room.session_manager.get_context_memory()
-                    if ctx and ctx.session_id:
-                        await room.ws_manager.send_to_client(
-                            room.message_manager.chat_message(localize_from_ja("セッションがタイムアウトしました。")),
-                            room_id,
-                        )
-                        await end_session(room)
+                if system_flags.get_phone_call_active():
+                    continue
+
+                idle_timeout_count += 1
+                logger.info(f"[{room_id}] Connection idle timeout ({idle_timeout_count}).")
+                ctx = room.session_manager.get_context_memory()
+                if ctx and ctx.session_id:
+                    await room.ws_manager.send_to_client(
+                        room.message_manager.chat_message(localize_from_ja("セッションがタイムアウトしました。")),
+                        room_id,
+                    )
+                    await end_session(room)
+
+                # No traffic for two consecutive idle periods (~240s) after the
+                # session ended means the client is gone without a clean close
+                # (network drop, tab killed, laptop slept) — the browser never
+                # sent a close frame, so WebSocketDisconnect below would never
+                # fire on its own. Close explicitly so `finally: remove_room`
+                # reclaims this room's memory instead of it lingering forever.
+                if idle_timeout_count >= 2:
+                    logger.info(f"[{room_id}] No client activity after idle timeout; closing connection.")
+                    break
                 continue
 
             if message == "exit":

@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # (e.g. -v /opt/aiserver/logs:/app/logs) so logs survive container removal.
 ENV LOG_DIR=/app/logs
 
-# Install system dependencies for FAISS, OpenCV, Selenium, etc.
+# Install system dependencies for FAISS, OpenCV, etc.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
@@ -18,7 +18,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     curl \
     unzip \
-    chromium-driver \
     && rm -rf /var/lib/apt/lists/*
 
 # Create and set working directory

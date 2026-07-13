@@ -40,8 +40,9 @@ def open_selenium_browser(loop, ws_manager, message_manager, room_id):
     options.add_argument("--log-level=3")
     options.add_argument("--disable-logging")
     options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Edge(service=EdgeService(edge_driver_path, log_path='NUL'), options=options)
+    driver = None
     try:
+        driver = webdriver.Edge(service=EdgeService(edge_driver_path, log_path='NUL'), options=options)
         driver.get(PHONECALL_URL)
         
         wait = WebDriverWait(driver, 20)
@@ -93,13 +94,14 @@ def open_selenium_browser(loop, ws_manager, message_manager, room_id):
     except Exception as e:
         logger.error(f"Error during Selenium operation: {e}")
     finally:
-        try:
-            logger.info("Clicking call button before quitting browser...")
-            call_button = driver.find_element(By.ID, "call-button")
-            call_button.click()
-            logger.info("Call button clicked successfully before quitting.")
-        except Exception as e:
-            logger.error(f"Error clicking call button before quitting: {e}")
-        driver.quit()
-        logger.info("Phone Call Browser closed.")
+        if driver is not None:
+            try:
+                logger.info("Clicking call button before quitting browser...")
+                call_button = driver.find_element(By.ID, "call-button")
+                call_button.click()
+                logger.info("Call button clicked successfully before quitting.")
+            except Exception as e:
+                logger.error(f"Error clicking call button before quitting: {e}")
+            driver.quit()
+            logger.info("Phone Call Browser closed.")
     
