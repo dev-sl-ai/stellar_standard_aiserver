@@ -129,6 +129,15 @@ body {
   background-color: #16a34a;
 }
 
+#call-button:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+#call-button:disabled:hover {
+  background-color: #22c55e;
+}
+
 #call-button svg {
   width: 40%;
   height: 40%;

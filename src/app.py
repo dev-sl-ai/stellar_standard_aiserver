@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import sys
 import time
 from pathlib import Path
 
@@ -27,9 +28,7 @@ from src.api.azure_token_api import router as azure_token_router
 from src.helpers import logger
 from src.helpers.conf_loader import GREET_MSG, server_config_loader
 from src.helpers.enums import ActionType, MessageType
-from src.helpers import system_flags
 from src.helpers.translation_util import localize_from_ja
-from src.helpers.website_handler import handle_phonecall_action
 from src.llm.llm_manager import is_valid_japanese_phone_number
 from src.message_templates.websocket_message_template import LanguageData
 from src.room_manager import get_or_create_room, remove_room, get_active_rooms
@@ -89,16 +88,26 @@ async def shutdown_event():
 
 @app.post("/shutdown")
 async def shutdown():
+    import signal
     import threading
     logger.info("Server is shutting down from /shutdown route!")
-    # Clean up all active rooms
+    # Clean up all active rooms on this worker
     active_rooms = get_active_rooms()
     for room_id in active_rooms:
         await remove_room(room_id)
 
     def delayed_exit():
         time.sleep(0.5)
-        os._exit(0)
+        if sys.platform == "win32":
+            # No process groups / multi-worker mode on Windows (see runner.py) —
+            # this process is the only one running, so exiting it is enough.
+            os._exit(0)
+        else:
+            # SIGTERM the whole process group (uvicorn master + every worker), not
+            # just this worker's PID via os._exit(0) — otherwise multi-worker mode
+            # (WEB_CONCURRENCY > 1) only tears down whichever worker handled this
+            # request and the rest keep serving traffic.
+            os.killpg(os.getpgid(0), signal.SIGTERM)
 
     threading.Thread(target=delayed_exit).start()
     return {"status": "shutting down"}
@@ -129,9 +138,6 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                 message = await asyncio.wait_for(websocket.receive_text(), timeout=120)
                 idle_timeout_count = 0
             except asyncio.TimeoutError:
-                if system_flags.get_phone_call_active():
-                    continue
-
                 idle_timeout_count += 1
                 logger.info(f"[{room_id}] Connection idle timeout ({idle_timeout_count}).")
                 ctx = room.session_manager.get_context_memory()
@@ -183,7 +189,7 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
                     asyncio.create_task(process_chat(data.message, room))
 
             elif data.type == MessageType.ACTION.value:
-                if room.session_manager.get_context_memory().session_id is not None or data.action_type == ActionType.START_SESSION.value or data.action_type == ActionType.PHONECALL_ACTION.value or data.action_type == ActionType.PHONEEND_ACTION.value or data.action_type == ActionType.SET_LANGUAGE.value or data.action_type == ActionType.SET_LOCATION.value:
+                if room.session_manager.get_context_memory().session_id is not None or data.action_type == ActionType.START_SESSION.value or data.action_type == ActionType.SET_LANGUAGE.value or data.action_type == ActionType.SET_LOCATION.value:
                     asyncio.create_task(process_action(data.action_type, data.params, room))
 
             elif data.type == MessageType.CHAT_ACTION.value:
@@ -255,13 +261,6 @@ async def process_action(action_type: str, params, room):
                 else:
                     ctx.phone_correct = False
                     logger.error(f"[{room_id}] Invalid phone format: {params.contact}")
-
-        case ActionType.PHONECALL_ACTION.value:
-            system_flags.set_phone_call_active(True)
-            await handle_phonecall_action(room.ws_manager, room.message_manager, room_id)
-
-        case ActionType.PHONEEND_ACTION.value:
-            system_flags.set_phone_call_active(False)
 
         case ActionType.END_OF_TTS.value:
             ctx = room.session_manager.get_context_memory()

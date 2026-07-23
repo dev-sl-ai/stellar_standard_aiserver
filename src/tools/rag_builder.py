@@ -62,7 +62,24 @@ class RAGBuilder:
             self._save_timestamp()
         return faiss_store.as_retriever(search_kwargs={"k": self.top_k})
 
+_retrievers_cache = None
+
+
 def build_all_retrievers():
+    """Build/load every configured retriever once per process and cache the result.
+
+    ToolLoader (and therefore this) is constructed fresh for every new room — i.e.
+    every WebSocket connection (see RoomManager.__init__) — so without caching, each
+    new user triggers a synchronous FAISS.load_local() disk read + deserialization
+    plus an mtime staleness check, blocking the single asyncio event loop that's
+    also serving every other concurrent room on this worker. Retrievers are
+    read-only after construction (pure similarity search, no per-room state), so
+    it's safe to build them once and hand the same objects to every room.
+    """
+    global _retrievers_cache
+    if _retrievers_cache is not None:
+        return _retrievers_cache
+
     retrievers = {}
     for dataset in RAG_CONF["datasets"]:
         builder = RAGBuilder(
@@ -74,4 +91,6 @@ def build_all_retrievers():
             top_k=MODELS_CONF["embedding"].get("top_k", 3),
         )
         retrievers[dataset["name"]] = builder.create_or_load_vectorstore()
-    return retrievers
+
+    _retrievers_cache = retrievers
+    return _retrievers_cache

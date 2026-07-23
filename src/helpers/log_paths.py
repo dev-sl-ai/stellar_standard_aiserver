@@ -10,3 +10,7 @@ LOGS_BASE_DIR = Path(os.getenv("LOG_DIR", str(_DEFAULT_BASE)))
 DEV_LOG_DIR = LOGS_BASE_DIR / "dev"
 USER_LOG_DIR = LOGS_BASE_DIR / "user"
 UNITY_LOG_DIR = LOGS_BASE_DIR / "unity"
+
+# Small on-disk cache shared by all uvicorn worker processes (see azure_token_api.py) —
+# sits next to the logs dir rather than in it, since it isn't a log.
+CACHE_DIR = LOGS_BASE_DIR.parent / "cache"

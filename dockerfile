@@ -8,6 +8,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Persist logs outside the container's writable layer; bind-mount this at runtime
 # (e.g. -v /opt/aiserver/logs:/app/logs) so logs survive container removal.
 ENV LOG_DIR=/app/logs
+# uvicorn worker process count — override with -e WEB_CONCURRENCY=N at runtime.
+ENV WEB_CONCURRENCY=4
 
 # Install system dependencies for FAISS, OpenCV, etc.
 RUN apt-get update && apt-get install -y --no-install-recommends \

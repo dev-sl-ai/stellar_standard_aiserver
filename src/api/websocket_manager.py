@@ -69,7 +69,6 @@ class WebSocketManager:
             self.button_id is not None
             or (isinstance(message, ActionMessage) and message.action_type == ActionType.SHOW_TOP.value)
             or (isinstance(message, ChatActionMessage) and message.action.action_type == ActionType.SHOW_TOP.value)
-            or (isinstance(message, ActionMessage) and message.action_type == ActionType.PHONEEND_ACTION.value)
             or (isinstance(message, ChatActionMessage) and message.action.action_type == ActionType.SHOW_PHONE_PAGE.value)
             or (isinstance(message, ActionMessage) and message.action_type == ActionType.SET_LANGUAGE.value)
         )

@@ -27,8 +27,6 @@ class ActionType(Enum):
     SHOW_SORRY = "show_sorry"
     SHOW_WAIT = "show_wait"
     TOUCH_ACTION = "touch_action"
-    PHONECALL_ACTION = "phonecall_action"
-    PHONEEND_ACTION = "phoneend_action"
     CHOOSE_CONTACT = "choose_contact"
     SHOW_BOCHI = "show_bochi"
     SHOW_PET = "show_pet"

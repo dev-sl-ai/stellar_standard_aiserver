@@ -18,19 +18,18 @@
         </svg>
       </div>
       <p id="agent-name">担当者</p>
-      <p id="status-text" class="text-xl mt-2"></p>
+      <p id="status-text"></p>
     </div>
 
-    <button id="call-button">
+    <!-- Calling isn't wired up (Twilio/Selenium call automation was removed) —
+         the button stays visible but inert; disabled blocks click/keyboard activation. -->
+    <button id="call-button" disabled aria-disabled="true">
       <svg fill="currentColor" viewBox="0 0 24 24">
         <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.27c1.2.48 2.53.73 3.88.73a1 1 0 011 1V20a1 1 0 01-1 1C10.4 21 3 13.6 3 5a1 1 0 011-1h3.5a1 1 0 011 1c0 1.35.25 2.68.73 3.88.13.28.07.6-.27 1.11l-2.34 2.34z"/>
       </svg>
     </button>
   </div>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-  <script src="static/call.js"></script>
   <script src="static/call_ui.js"></script>
 </body>
 </html>

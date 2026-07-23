@@ -13,7 +13,6 @@ uvicorn[standard]
 httpx
 pyyaml
 rich
-selenium
 opencv-python
 aiohttp
 deep-translator

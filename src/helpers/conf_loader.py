@@ -67,4 +67,3 @@ RAG_CONF = ai_config.get("rag", {})
 # Public HTTPS origin that serves the WebGL build (nginx TLS host). Used to build
 # absolute URLs pushed to the client so they stay same-origin HTTPS (no mixed content).
 PUBLIC_BASE_URL = server_config.get("public_base_url", "").rstrip("/")
-PHONECALL_URL = server_config.get("phonecall_url", "https://153.126.190.186/phone")
